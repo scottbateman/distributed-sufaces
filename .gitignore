@@ -1,0 +1,6 @@
+# tmp text editor files
+*~
+*.swp
+
+# ignore node modules
+node_modules/
