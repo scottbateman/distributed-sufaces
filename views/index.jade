@@ -1,0 +1,127 @@
+extends layout
+
+block content
+  h1 Drag balls and drop them to other devices
+  h2 User tag:
+    span#userID
+
+  .drag.ball1
+    p.text 1
+    p.id 1
+  .drag.ball2
+    p.text 2
+    p.id 2
+  .drag.ball3
+    p.text 3
+    p.id 3
+  .drag.ball4
+    p.text 4
+    p.id 4
+  #drop: p.text Drop here
+
+  // input(type='checkbox')
+  ul#users
+
+  - var host = 'http://' + settings.ip + ':' + settings.port;
+  script(type='text/javascript', src='http://code.jquery.com/jquery-1.10.2.min.js')
+  script(type='text/javascript', src=host + '/javascripts/hammer.js')
+  script(type='text/javascript', src=host + '/socket.io/socket.io.js')
+
+  script(type='text/javascript').
+
+    var socket = io.connect('#{host}');
+    startHammer($('.drag'));
+
+    function startHammer(elem) {
+      // if ($.isArray(elem)) {
+        for (var i = 0; i < elem.length; i++) {
+          new Hammer(elem[i], { prevent_default: true, no_mouseevents: true });
+        };
+      // } else {
+      //   new Hammer(elem, { prevent_default: true, no_mouseevents: true });
+      // }
+
+      elem.on('touch', function(ev) {
+        var touches = ev.originalEvent.gesture.touches;
+        for (var t = 0, len = touches.length; t < len; t++) {
+          var target = $(touches[t].target);
+          $('.drag').css({ zIndex: 5 });
+          target.css({ zIndex: 10 });
+        }
+      });
+
+      elem.on('drag', function(ev) {
+        var touches = ev.originalEvent.gesture.touches;
+        for (var t = 0, len = touches.length; t < len; t++) {
+          var target = $(touches[t].target);
+
+          // $('.drag').css({ zIndex: 0 });
+
+          if (target.hasClass('drag')) {
+            target.css({
+              // zIndex: 10,
+              left: touches[t].pageX - target.width() / 2,
+              top: touches[t].pageY - target.height() / 2
+            });
+          }
+        }
+      });
+
+      elem.on('release', function(ev) {
+        var touches = ev.originalEvent.gesture.touches;
+        for (var t = 0, len = touches.length; t < len; t++) {
+          var target = $(touches[t].target);
+          if (target.hasClass('drag'))
+          if (target.position().left + target.width() / 2 >= 0.9 * $(document).width()) {
+            sendElement(target);
+            target.remove();
+          }
+        }
+      });
+    };
+
+    socket.on('hello', function(data) {
+      console.log(data.msg);
+
+      $(document).ready(function() {
+        $('#userID').text(data.user);
+        $('.id').text(data.user.substring(0, 10));
+      });
+
+      $('#users li').remove();
+      for (var i = 0, len = data.users.length; i < len; i++) {
+        $('#users').append('<li>' + data.users[i] + '</li>');
+      }
+    });
+
+    socket.on('new_user', function(data) {
+      $('#users').append('<li>' + data.user + '</li>');
+    });
+
+    socket.on('del_user', function(data) {
+      var allLI = $("#users li");
+      for (var i = 0, len = allLI.length; i < len; i++) {
+        if (allLI[i].textContent === data.user) {
+          allLI[i].remove();
+        }
+      }
+    });
+
+    socket.on('new_element', function(data) {
+      newElem = $(document.createElement(data.tag));
+      newElem.addClass(data.classes);
+      newElem.attr('id', data.id);
+      newElem.html(data.innerHTML);
+
+      $("body").append(newElem);
+      startHammer(newElem);
+    });
+
+    function sendElement(element) {
+      socket.emit('transfer_ball', {
+        tag: element[0].tagName,
+        classes: element[0].className,
+        id: element[0].id,
+        innerHTML: element[0].innerHTML
+      });
+    };
