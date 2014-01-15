@@ -158,6 +158,7 @@ io.sockets.on('connection', function(socket) {
       var sock = io.sockets.sockets[data.target];
       sock.emit('new_element', {
          from: socket.id,
+         relHeight: data.relHeight,
          tag: data.tag,
          classes: data.classes,
          id: data.id,

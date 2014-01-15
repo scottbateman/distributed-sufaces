@@ -83,7 +83,7 @@ block content
               }
             }
             if (typeof where !== 'undefined') {
-              sendElement(target, where);
+              sendElement(target, where, targetCenter);
               target.remove();
             }
           }
@@ -146,14 +146,20 @@ block content
       newElem.addClass(data.classes);
       newElem.attr('id', data.id);
       newElem.html(data.innerHTML);
+      newElem.css({
+        top: ( data.relHeight * $(window).height() - newElem.height() / 2 ),
+        left: ( $(window).width() - $('#drop-area').width() - newElem.width() )
+      });
 
       $("body").append(newElem);
       startHammer(newElem);
     });
 
-    function sendElement(element, where) {
+    function sendElement(element, where, position) {
+      var relHeight = position.y / $(window).height();
       socket.emit('transfer_ball', {
         target: where.attr('data-target-id'),
+        relHeight: ( position.y / $(window).height() ),
         tag: element[0].tagName,
         classes: element[0].className,
         id: element[0].id,
