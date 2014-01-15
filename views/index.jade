@@ -2,7 +2,7 @@ extends layout
 
 block content
   h1 Drag balls and drop them to other devices
-  h2 User tag:
+  h2 User tag: 
     span#userID
 
   .drag.ball1
@@ -96,10 +96,10 @@ block content
 
       $(document).ready(function() {
         var userID = $('#userID');
-        userID.text(data.user);
+        userID.text(data.name);
         userID.css({ background: data.color });
 
-        $('.id').text(data.user.substring(0, 10));
+        $('.id').text(data.name);
 
         $('#drop-area div').remove();
         for (var i = 0, len = data.users.length; i < len; i++) {
@@ -109,7 +109,7 @@ block content
           newUserDropArea.css({ background: data.users[i].color });
 
           var newUserText = $(document.createElement('p'));
-          newUserText.text(data.users[i].user.substring(0, 10));
+          newUserText.text(data.users[i].name);
           newUserDropArea.append(newUserText);
 
           $('#drop-area').append(newUserDropArea);
@@ -126,7 +126,7 @@ block content
       newUserDropArea.css({ background: data.color });
 
       var newUserText = $(document.createElement('p'));
-      newUserText.text(data.user.substring(0, 10));
+      newUserText.text(data.name);
       newUserDropArea.append(newUserText);
 
       $('#drop-area').append(newUserDropArea);
@@ -137,7 +137,7 @@ block content
 
     socket.on('del_user', function(data) {
       $('[data-target-id=' + data.user + ']').remove();
-      var useHeight = (100 / data.total) + '%'
+      var useHeight = (100 / $('#drop-area div').length) + '%'
       $('#drop-area div').css({ height: useHeight });
     });
 

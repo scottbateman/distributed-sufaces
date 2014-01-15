@@ -51,6 +51,16 @@ server.listen(app.get('port'), function(){
    console.log('Express server listening on port ' + app.get('port'));
 });
 
+var sampleNames = [
+   'Fe', 'Thomas', 'Kirstie', 'Wynell', 'Mario', 'Aretha', 'Cherryl', 'Ta',
+   'Lindy', 'Karina', 'Sacha', 'Latesha', 'Miki', 'Janel', 'Leola', 'Romeo',
+   'Roderick', 'Felica', 'Ilona', 'Nila', 'Patrina', 'Wes', 'Henry', 'Elvera',
+   'Karrie', 'Jacklyn', 'Alethea', 'Emogene', 'Alphonso', 'Chandra', 'Beryl',
+   'Lilly', 'Georgetta', 'Darrin', 'Deane', 'Rocio', 'Charissa', 'Simona',
+   'Don', 'Arianne', 'Esther', 'Leonia', 'Karma', 'Rosemarie', 'Carolyn',
+   'Miriam', 'Chastity', 'Vesta', 'Christian', 'Lashaun'
+];
+
 var users = {
 //{{{ Declaration for users object
    length: 0,
@@ -59,6 +69,7 @@ var users = {
       this.length++;
    },
    pop: function(user) {
+      var deleted = {};
       if (this.length > 0) {
          var toDelete = -1;
          for (var i = 0, len = this.length; i < len && toDelete === -1; i++) {
@@ -67,6 +78,7 @@ var users = {
             }
          }
          if (toDelete > -1) {
+            deleted = this[toDelete];
             for (var i = toDelete, len = this.length; i < len - 1; i++) {
                this[i] = this[i+1];
             }
@@ -74,6 +86,7 @@ var users = {
             this.length--;
          }
       }
+      return deleted;
    },
    except: function(user) {
       var list = {
@@ -101,37 +114,50 @@ function rndColor() {
    return bg_colour;
 }
 
+function rndName() {
+   var rnd = Math.floor(Math.random() * sampleNames.length);
+   var name = sampleNames[rnd];
+   delete sampleNames[rnd];
+   return name;
+}
+
 io.sockets.on('connection', function(socket) {
    var newColor = rndColor();
+   var newName = rndName();
+
    socket.emit('hello', {
       msg: 'MCP is welcoming you, user. EOL',
       user: socket.id,
+      name: newName,
       color: newColor,
       users: users
    });
 
    socket.broadcast.emit('new_user', {
       user: socket.id,
+      name: newName,
       color: newColor,
       total: users.length
    });
 
    users.push({
       user: socket.id,
+      name: newName,
       color: newColor
    });
 
    socket.on('disconnect', function(data) {
-      users.pop({ user: socket.id });
+      var deleted = users.pop({ user: socket.id });
+      sampleNames.push(deleted.name);
       socket.broadcast.emit('del_user', {
          user: socket.id,
-         total: users.length - 1
       });
    });
 
    socket.on('transfer_ball', function(data) {
       var sock = io.sockets.sockets[data.target];
       sock.emit('new_element', {
+         from: socket.id,
          tag: data.tag,
          classes: data.classes,
          id: data.id,
