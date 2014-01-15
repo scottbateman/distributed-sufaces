@@ -1,4 +1,4 @@
-/* vim: set foldmethod=marker: */
+/* vim: set fdm=marker: */
 
 /**
  * Module dependencies.
@@ -44,6 +44,7 @@ if ('development' == app.get('env')) {
 }
 
 app.get('/', routes.index);
+app.get('/mirror', routes.mirror);
 app.get('/users', user.list);
 // app.get('newview', )
 
@@ -59,9 +60,9 @@ var sampleNames = [
    'Lilly', 'Georgetta', 'Darrin', 'Deane', 'Rocio', 'Charissa', 'Simona',
    'Don', 'Arianne', 'Esther', 'Leonia', 'Karma', 'Rosemarie', 'Carolyn',
    'Miriam', 'Chastity', 'Vesta', 'Christian', 'Lashaun'
-];
+].sort();
 
-var users = {
+var shareModeUsers = {
 //{{{ Declaration for users object
    length: 0,
    push: function(user) {
@@ -108,20 +109,87 @@ var users = {
 //}}}
 };
 
-function rndColor() {
+var mirrorModeUsers = {
+//{{{ Declaration for users object
+   length: 0,
+   push: function(user) {
+      this[this.length] = user;
+      this.length++;
+   },
+   pop: function(user) {
+      var deleted = {};
+      if (this.length > 0) {
+         var toDelete = -1;
+         for (var i = 0, len = this.length; i < len && toDelete === -1; i++) {
+            if (this[i].user === user.user) {
+               toDelete = i;
+            }
+         }
+         if (toDelete > -1) {
+            deleted = this[toDelete];
+            for (var i = toDelete, len = this.length; i < len - 1; i++) {
+               this[i] = this[i+1];
+            }
+            delete this[i];
+            this.length--;
+         }
+      }
+      return deleted;
+   },
+   except: function(user) {
+      var list = {
+         length: 0,
+         push : function (user) {
+            this[this.length] = user;
+            this.length++;
+         }
+      };
+
+      for (var i = 0; i < this.length; i++) {
+         if (this[i].user !== user.user) {
+            list.push(this[i]);
+         }
+      }
+
+      return list;
+   }
+//}}}
+}
+
+var rndColor = function() {
+//{{{ function that returns random color
    var bg_colour = Math.floor(Math.random() * 16777215).toString(16);
    bg_colour = "#"+("000000" + bg_colour).slice(-6);
    return bg_colour;
+//}}}
 }
 
-function rndName() {
+var rndName = function() {
+//{{{ function that returns random name from list of names
    var rnd = Math.floor(Math.random() * sampleNames.length);
    var name = sampleNames[rnd];
-   delete sampleNames[rnd];
+   for (var i = rnd, len = sampleNames.length; i < len - 1; i++) {
+      sampleNames[i] = sampleNames[i+1];
+   }
+   sampleNames = sampleNames.splice(0, sampleNames.length - 1);
    return name;
+//}}}
 }
 
 io.sockets.on('connection', function(socket) {
+   socket.on('connected', function(data) {
+      var path = data.path;
+      socket.join(path);
+      if (path === '/')  {
+         shareMode(socket);
+      } else if (path === '/mirror') {
+         mirrorMode(socket);
+      }
+   });
+});
+
+function shareMode(socket) {
+//{{{ manage devices for share mode of application
    var newColor = rndColor();
    var newName = rndName();
 
@@ -130,26 +198,27 @@ io.sockets.on('connection', function(socket) {
       user: socket.id,
       name: newName,
       color: newColor,
-      users: users
+      users: shareModeUsers.except({ user: socket.id })
    });
 
-   socket.broadcast.emit('new_user', {
+   socket.broadcast.to('/').emit('new_user', {
       user: socket.id,
       name: newName,
       color: newColor,
-      total: users.length
+      total: shareModeUsers.length
    });
 
-   users.push({
+   shareModeUsers.push({
       user: socket.id,
       name: newName,
       color: newColor
    });
 
    socket.on('disconnect', function(data) {
-      var deleted = users.pop({ user: socket.id });
+      var deleted = shareModeUsers.pop({ user: socket.id });
       sampleNames.push(deleted.name);
-      socket.broadcast.emit('del_user', {
+
+      socket.broadcast.to('/').emit('del_user', {
          user: socket.id,
       });
    });
@@ -164,5 +233,39 @@ io.sockets.on('connection', function(socket) {
          id: data.id,
          innerHTML: data.innerHTML
       });
-   })
-});
+   });
+//}}}
+}
+
+function mirrorMode(socket) {
+//{{{ manage devices for mirror mode of application
+   var newColor = rndColor();
+   var newName = rndName();
+
+   socket.emit('hello', {
+      msg: 'MCP is welcoming you, user. EOL',
+      user: socket.id,
+      name: newName,
+      color: newColor,
+      users: shareModeUsers.except({ user: socket.id })
+   });
+
+   socket.on('element', function(data) {
+      socket.broadcast.to('/mirror').emit('choose_element', {
+         from: socket.id,
+         tag: data.tag,
+         classes: data.classes,
+         id: data.id,
+         innerHTML: data.innerHTML
+      });
+   });
+
+   socket.on('new_coord', function(data) {
+      socket.broadcast.to('/mirror').emit('move_elem', {
+         x: data.x,
+         y: data.y
+      });
+   });
+
+//}}}
+}

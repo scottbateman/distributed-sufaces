@@ -37,26 +37,26 @@ p {
   display: block;
 }
 
-.ball1 {
+.ball1, #ball1 {
   background: green;
   top: 250px;
   left: 50px;
 }
 
-.ball2 {
+.ball2, #ball2 {
   background: red;
   top: 250px;
   left: 175px;
 }
 
-.ball3 {
+.ball3, #ball3 {
   background: blue;
   color: white;
   top: 375px;
   left: 50px;
 }
 
-.ball4 {
+.ball4, #ball4 {
   background: yellow;
   color: black;
   top: 375px;

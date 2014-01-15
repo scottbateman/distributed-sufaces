@@ -5,17 +5,15 @@ block content
   h2 User tag: 
     span#userID
 
+  a(href='/mirror') Mirror mode
+
   .drag.ball1
-    p.text 1
     p.id 1
   .drag.ball2
-    p.text 2
     p.id 2
   .drag.ball3
-    p.text 3
     p.id 3
   .drag.ball4
-    p.text 4
     p.id 4
   #drop-area
 
@@ -27,6 +25,7 @@ block content
   script(type='text/javascript').
 
     var socket = io.connect('#{host}');
+    socket.emit('connected', { path: window.location.pathname });
     startHammer($('.drag'));
 
     function startHammer(elem) {
@@ -146,9 +145,11 @@ block content
       newElem.addClass(data.classes);
       newElem.attr('id', data.id);
       newElem.html(data.innerHTML);
+      var fuzziness = 1 + 25;
+      var rndLeft = Math.floor(Math.random() * fuzziness - 5);
       newElem.css({
         top: ( data.relHeight * $(window).height() - newElem.height() / 2 ),
-        left: ( $(window).width() - $('#drop-area').width() - newElem.width() )
+        left: ( $(window).width() - $('#drop-area').width() - newElem.width() + rndLeft )
       });
 
       $("body").append(newElem);

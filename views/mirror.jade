@@ -1,0 +1,105 @@
+extends layout
+
+block content
+  h1 Drag balls
+  h2 User tag: 
+    span#userID 
+      
+  a(href='/') Sharing mode
+
+  .drag#ball1
+    p.id 1
+  .drag#ball2
+    p.id 2
+  .drag#ball3
+    p.id 3
+  .drag#ball4
+    p.id 4
+
+  - var host = 'http://' + settings.ip + ':' + settings.port;
+  script(type='text/javascript', src='http://code.jquery.com/jquery-1.10.2.min.js')
+  script(type='text/javascript', src=host + '/javascripts/hammer.js')
+  script(type='text/javascript', src=host + '/socket.io/socket.io.js')
+
+  script(type='text/javascript').
+
+    var socket = io.connect('#{host}');
+    socket.emit('connected', { path: window.location.pathname });
+    startHammer($('.drag'));
+
+    function startHammer(elem) {
+      for (var i = 0; i < elem.length; i++) {
+        new Hammer(elem[i], { prevent_default: true, no_mouseevents: true });
+      };
+
+      elem.on('touch', function(ev) {
+        var touches = ev.originalEvent.gesture.touches;
+        for (var t = 0, len = touches.length; t < len; t++) {
+          var target = $(touches[t].target);
+          $('.drag').css({ zIndex: 5 });
+          target.css({ zIndex: 10 });
+          sendElementId(target);
+        }
+      });
+
+      elem.on('drag', function(ev) {
+        var touches = ev.originalEvent.gesture.touches;
+        for (var t = 0, len = touches.length; t < len; t++) {
+          var target = $(touches[t].target);
+
+          // $('.drag').css({ zIndex: 0 });
+
+          if (target.hasClass('drag')) {
+            target.css({
+              // zIndex: 10,
+              left: touches[t].pageX - target.width() / 2,
+              top: touches[t].pageY - target.height() / 2
+            });
+            sendCoord(touches[t].pageX, touches[t].pageY);
+          }
+        }
+      });
+    };
+
+    socket.on('hello', function(data) {
+      console.log(data.msg);
+
+      $(document).ready(function() {
+        var userID = $('#userID');
+        userID.text(data.name);
+        userID.css({ background: data.color });
+
+        $('.id').text(data.name);
+      });
+    });
+
+    socket.on('choose_element', function(data) {
+      $('.drag').attr('data-drag-selected', false);
+      var selector = data.tag + '#' + data.id;
+      var element = $(selector);
+      element.attr('data-drag-selected', true);
+    });
+
+    socket.on('move_elem', function(data) {
+      var element = $('[data-drag-selected=true]');
+      element.css({
+        left: data.x - element.width() / 2,
+        top: data.y - element.height() / 2
+      });
+    });
+
+    var sendElementId = function(target) {
+      socket.emit('element', {
+        tag: target[0].tagName,
+        classes: target[0].className,
+        id: target[0].id,
+        innerHTML: target[0].innerHTML
+      });
+    };
+
+    var sendCoord = function(x, y) {
+      socket.emit('new_coord', {
+        x: x,
+        y: y
+      });
+    }
