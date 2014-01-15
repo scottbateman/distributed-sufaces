@@ -7,8 +7,12 @@ body {
   /* color: white; */
 }
 
-div {
-  opacity: 0.5;
+p {
+  padding: 0;
+  margin: 0;
+  text-align: center;
+  position: relative;
+  /* top: 50%; */
 }
 
 .drag {
@@ -17,27 +21,20 @@ div {
   border-radius: 50px;
   position: absolute;
   z-index: 5;
+  opacity: 0.5;
 }
 
-p {
-  padding: 0px;
-  margin: 0px;
-  text-align: center;
-  position: relative;
-  /* top: 50%; */
-}
-
-#drop {
+#drop-area {
   height: 100%;
   width: 10%;
-  /* position: fixed; */
   position: absolute;
   top: 0;
   right: 0px;
-  background: cyan;
-  color: black;
-  opacity: 0.5;
   z-index: 1;
+}
+
+.drop {
+  display: block;
 }
 
 .ball1 {
@@ -64,11 +61,4 @@ p {
   color: black;
   top: 375px;
   left: 175px;
-}
-
-ul {
-  width: 180px;
-  position: absolute;
-  top: 0;
-  right: 10%;
 }

@@ -17,10 +17,7 @@ block content
   .drag.ball4
     p.text 4
     p.id 4
-  #drop: p.text Drop here
-
-  // input(type='checkbox')
-  ul#users
+  #drop-area
 
   - var host = 'http://' + settings.ip + ':' + settings.port;
   script(type='text/javascript', src='http://code.jquery.com/jquery-1.10.2.min.js')
@@ -33,13 +30,9 @@ block content
     startHammer($('.drag'));
 
     function startHammer(elem) {
-      // if ($.isArray(elem)) {
-        for (var i = 0; i < elem.length; i++) {
-          new Hammer(elem[i], { prevent_default: true, no_mouseevents: true });
-        };
-      // } else {
-      //   new Hammer(elem, { prevent_default: true, no_mouseevents: true });
-      // }
+      for (var i = 0; i < elem.length; i++) {
+        new Hammer(elem[i], { prevent_default: true, no_mouseevents: true });
+      };
 
       elem.on('touch', function(ev) {
         var touches = ev.originalEvent.gesture.touches;
@@ -71,10 +64,28 @@ block content
         var touches = ev.originalEvent.gesture.touches;
         for (var t = 0, len = touches.length; t < len; t++) {
           var target = $(touches[t].target);
-          if (target.hasClass('drag'))
-          if (target.position().left + target.width() / 2 >= 0.9 * $(document).width()) {
-            sendElement(target);
-            target.remove();
+          if (target.hasClass('drag')) {
+            var targetCenter = {
+              x: target.offset().left + target.width() / 2,
+              y: target.offset().top + target.height() / 2
+            };
+
+            var where;
+            var dropAreas = $('#drop-area div');
+            for (var i = 0, len = dropAreas.length; i < len
+              && typeof where === 'undefined'; i++) {
+              var drop = $(dropAreas[i]);
+              if (drop.offset().left <= targetCenter.x &&
+                targetCenter.x <= drop.offset().left + drop.width() &&
+                drop.offset().top <= targetCenter.y &&
+                targetCenter.y <= drop.offset().top + drop.height()) {
+                where = drop;
+              }
+            }
+            if (typeof where !== 'undefined') {
+              sendElement(target, where);
+              target.remove();
+            }
           }
         }
       });
@@ -84,27 +95,50 @@ block content
       console.log(data.msg);
 
       $(document).ready(function() {
-        $('#userID').text(data.user);
-        $('.id').text(data.user.substring(0, 10));
-      });
+        var userID = $('#userID');
+        userID.text(data.user);
+        userID.css({ background: data.color });
 
-      $('#users li').remove();
-      for (var i = 0, len = data.users.length; i < len; i++) {
-        $('#users').append('<li>' + data.users[i] + '</li>');
-      }
+        $('.id').text(data.user.substring(0, 10));
+
+        $('#drop-area div').remove();
+        for (var i = 0, len = data.users.length; i < len; i++) {
+          var newUserDropArea = $(document.createElement('div'));
+          newUserDropArea.addClass('drop');
+          newUserDropArea.attr('data-target-id', data.users[i].user);
+          newUserDropArea.css({ background: data.users[i].color });
+
+          var newUserText = $(document.createElement('p'));
+          newUserText.text(data.users[i].user.substring(0, 10));
+          newUserDropArea.append(newUserText);
+
+          $('#drop-area').append(newUserDropArea);
+          var useHeight = (100 / data.users.length) + '%'
+          $('#drop-area div').css({ height: useHeight });
+        }
+      });
     });
 
     socket.on('new_user', function(data) {
-      $('#users').append('<li>' + data.user + '</li>');
+      var newUserDropArea = $(document.createElement('div'));
+      newUserDropArea.addClass('drop');
+      newUserDropArea.attr('data-target-id', data.user);
+      newUserDropArea.css({ background: data.color });
+
+      var newUserText = $(document.createElement('p'));
+      newUserText.text(data.user.substring(0, 10));
+      newUserDropArea.append(newUserText);
+
+      $('#drop-area').append(newUserDropArea);
+
+      var useHeight = (100 / data.total) + '%'
+      $('#drop-area div').css({ height: useHeight });
     });
 
     socket.on('del_user', function(data) {
-      var allLI = $("#users li");
-      for (var i = 0, len = allLI.length; i < len; i++) {
-        if (allLI[i].textContent === data.user) {
-          allLI[i].remove();
-        }
-      }
+      $('[data-target-id=' + data.user + ']').remove();
+      var useHeight = (100 / data.total) + '%'
+      $('#drop-area div').css({ height: useHeight });
     });
 
     socket.on('new_element', function(data) {
@@ -117,8 +151,9 @@ block content
       startHammer(newElem);
     });
 
-    function sendElement(element) {
+    function sendElement(element, where) {
       socket.emit('transfer_ball', {
+        target: where.attr('data-target-id'),
         tag: element[0].tagName,
         classes: element[0].className,
         id: element[0].id,

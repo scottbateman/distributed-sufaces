@@ -1,3 +1,4 @@
+/* vim: set foldmethod=marker: */
 
 /**
  * Module dependencies.
@@ -51,23 +52,27 @@ server.listen(app.get('port'), function(){
 });
 
 var users = {
+//{{{ Declaration for users object
    length: 0,
    push: function(user) {
       this[this.length] = user;
       this.length++;
    },
    pop: function(user) {
-      var i = 0;
-      while (this[i] !== user && i < this.length) {
-         i++;
-      }
-      if (i < this.length) {
-         while (i < this.length - 1) {
-            this[i] = this[i+1];
-            i++;
+      if (this.length > 0) {
+         var toDelete = -1;
+         for (var i = 0, len = this.length; i < len && toDelete === -1; i++) {
+            if (this[i].user === user.user) {
+               toDelete = i;
+            }
          }
-         delete this[i];
-         this.length--;
+         if (toDelete > -1) {
+            for (var i = toDelete, len = this.length; i < len - 1; i++) {
+               this[i] = this[i+1];
+            }
+            delete this[i];
+            this.length--;
+         }
       }
    },
    except: function(user) {
@@ -80,35 +85,57 @@ var users = {
       };
 
       for (var i = 0; i < this.length; i++) {
-         if (this[i] !== user) {
+         if (this[i].user !== user.user) {
             list.push(this[i]);
          }
       }
 
       return list;
    }
+//}}}
 };
 
-io.sockets.on('connection', function(socket) {
-   console.log(users);
+function rndColor() {
+   var bg_colour = Math.floor(Math.random() * 16777215).toString(16);
+   bg_colour = "#"+("000000" + bg_colour).slice(-6);
+   return bg_colour;
+}
 
+io.sockets.on('connection', function(socket) {
+   var newColor = rndColor();
    socket.emit('hello', {
       msg: 'MCP is welcoming you, user. EOL',
       user: socket.id,
+      color: newColor,
       users: users
    });
 
-   users.push(socket.id);
-   console.log(users);
+   socket.broadcast.emit('new_user', {
+      user: socket.id,
+      color: newColor,
+      total: users.length
+   });
 
-   socket.broadcast.emit('new_user', { user: socket.id });
+   users.push({
+      user: socket.id,
+      color: newColor
+   });
 
    socket.on('disconnect', function(data) {
-      users.pop(socket.id);
-      socket.broadcast.emit('del_user', { user: socket.id });
+      users.pop({ user: socket.id });
+      socket.broadcast.emit('del_user', {
+         user: socket.id,
+         total: users.length - 1
+      });
    });
 
    socket.on('transfer_ball', function(data) {
-      socket.broadcast.emit('new_element', data);
+      var sock = io.sockets.sockets[data.target];
+      sock.emit('new_element', {
+         tag: data.tag,
+         classes: data.classes,
+         id: data.id,
+         innerHTML: data.innerHTML
+      });
    })
 });
