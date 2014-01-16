@@ -38,7 +38,6 @@ block content
           var target = $(touches[t].target);
           $('.drag').css({ zIndex: 5 });
           target.css({ zIndex: 10 });
-          sendElementId(target);
         }
       });
 
@@ -47,15 +46,12 @@ block content
         for (var t = 0, len = touches.length; t < len; t++) {
           var target = $(touches[t].target);
 
-          // $('.drag').css({ zIndex: 0 });
-
           if (target.hasClass('drag')) {
             target.css({
-              // zIndex: 10,
               left: touches[t].pageX - target.width() / 2,
               top: touches[t].pageY - target.height() / 2
             });
-            sendCoord(touches[t].pageX, touches[t].pageY);
+            sendElement(target, touches[t].pageX, touches[t].pageY);
           }
         }
       });
@@ -73,33 +69,21 @@ block content
       });
     });
 
-    socket.on('choose_element', function(data) {
-      $('.drag').attr('data-drag-selected', false);
-      var selector = data.tag + '#' + data.id;
-      var element = $(selector);
-      element.attr('data-drag-selected', true);
-    });
-
-    socket.on('move_elem', function(data) {
-      var element = $('[data-drag-selected=true]');
+    socket.on('move', function(data) {
+      var element = $(data.tag + '#' + data.id)
       element.css({
         left: data.x - element.width() / 2,
         top: data.y - element.height() / 2
       });
     });
 
-    var sendElementId = function(target) {
-      socket.emit('element', {
+    var sendElement = function(target, x, y) {
+      socket.emit('move_element', {
         tag: target[0].tagName,
         classes: target[0].className,
         id: target[0].id,
-        innerHTML: target[0].innerHTML
-      });
-    };
-
-    var sendCoord = function(x, y) {
-      socket.emit('new_coord', {
+        innerHTML: target[0].innerHTML,
         x: x,
         y: y
       });
-    }
+    };
