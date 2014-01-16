@@ -18,7 +18,7 @@ block content
   #drop-area
 
   - var host = 'http://' + settings.ip + ':' + settings.port;
-  script(type='text/javascript', src='http://code.jquery.com/jquery-1.10.2.min.js')
+  script(type='text/javascript', src='http://code.jquery.com/jquery-1.9.0.min.js')
   script(type='text/javascript', src=host + '/javascripts/hammer.js')
   script(type='text/javascript', src=host + '/socket.io/socket.io.js')
 
@@ -29,10 +29,9 @@ block content
     startHammer($('.drag'));
 
     function startHammer(elem) {
-      for (var i = 0; i < elem.length; i++) {
+      for (var i = 0, len = elem.length; i < len; i++) {
         new Hammer(elem[i], { prevent_default: true, no_mouseevents: true });
-      };
-
+      }
       elem.on('touch', function(ev) {
         var touches = ev.originalEvent.gesture.touches;
         for (var t = 0, len = touches.length; t < len; t++) {
@@ -68,7 +67,6 @@ block content
               x: target.offset().left + target.width() / 2,
               y: target.offset().top + target.height() / 2
             };
-
             var where;
             var dropAreas = $('#drop-area div');
             for (var i = 0, len = dropAreas.length; i < len
@@ -145,6 +143,10 @@ block content
       newElem.addClass(data.classes);
       newElem.attr('id', data.id);
       newElem.html(data.innerHTML);
+
+      $("body").append(newElem);
+      startHammer(newElem);
+
       var fuzziness = 1 + 25;
       var rndLeft = Math.floor(Math.random() * fuzziness - 5);
       newElem.css({
@@ -152,8 +154,6 @@ block content
         left: ( $(window).width() - $('#drop-area').width() - newElem.width() + rndLeft )
       });
 
-      $("body").append(newElem);
-      startHammer(newElem);
     });
 
     function sendElement(element, where, position) {
