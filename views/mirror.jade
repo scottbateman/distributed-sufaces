@@ -70,7 +70,7 @@ block content
     });
 
     socket.on('move', function(data) {
-      var element = $(data.tag + '#' + data.id)
+      var element = $('#' + data.id)
       element.css({
         left: data.x - element.width() / 2,
         top: data.y - element.height() / 2
@@ -79,10 +79,7 @@ block content
 
     var sendElement = function(target, x, y) {
       socket.emit('move_element', {
-        tag: target[0].tagName,
-        classes: target[0].className,
         id: target[0].id,
-        innerHTML: target[0].innerHTML,
         x: x,
         y: y
       });

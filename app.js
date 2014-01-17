@@ -253,10 +253,7 @@ function mirrorMode(socket) {
    socket.on('move_element', function(data) {
       socket.broadcast.to('/mirror').emit('move', {
          from: socket.id,
-         tag: data.tag,
-         classes: data.classes,
          id: data.id,
-         innerHTML: data.innerHTML,
          x: data.x,
          y: data.y
       });
