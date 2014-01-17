@@ -41,7 +41,7 @@ block content
         }
       });
 
-      elem.on('drag', function(ev) {
+      elem.on('drag transform', function(ev) {
         var touches = ev.originalEvent.gesture.touches;
         for (var t = 0, len = touches.length; t < len; t++) {
           var target = $(touches[t].target);

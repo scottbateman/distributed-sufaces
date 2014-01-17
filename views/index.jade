@@ -20,20 +20,40 @@ block content
   - var host = 'http://' + settings.ip + ':' + settings.port;
   script(type='text/javascript', src='http://code.jquery.com/jquery-1.9.0.min.js')
   script(type='text/javascript', src=host + '/javascripts/hammer.js')
+  script(type='text/javascript', src=host + '/javascripts/hammer.fakemultitouch.js')
+  script(type='text/javascript', src=host + '/javascripts/hammer.showtouches.js')
   script(type='text/javascript', src=host + '/socket.io/socket.io.js')
 
   script(type='text/javascript').
+
+    // Hammer.plugins.showTouches();
+    // Hammer.plugins.fakeMultitouch();
 
     var socket = io.connect('#{host}');
     socket.emit('connected', { path: window.location.pathname });
     startHammer($('.drag'));
 
+    // new Hammer($(document.body)[0], { prevent_default: true, no_mouseevents: true});
+    // $(document.body).on('transform', function(ev) {
+    //   // console.log(ev);
+    //   var touches = ev.originalEvent.gesture.touches;
+    //   var line = '';
+    //   for (var i = 0, len = touches.length; i < len; i++) {
+    //     line += '' + i + ' ' + touches[i].pageX + ' ' + touches[i].pageY + '\n';
+    //   }
+    //   console.log(line);
+    // });
+
     function startHammer(elem) {
       for (var i = 0, len = elem.length; i < len; i++) {
         new Hammer(elem[i], { prevent_default: true, no_mouseevents: true });
       }
+
+      // elem.on('touch transformstart', function(ev) {
       elem.on('touch', function(ev) {
+        console.log('start ' + ev.originalEvent.type);
         var touches = ev.originalEvent.gesture.touches;
+        // console.log(touches);
         for (var t = 0, len = touches.length; t < len; t++) {
           var target = $(touches[t].target);
           $('.drag').css({ zIndex: 5 });
@@ -41,8 +61,9 @@ block content
         }
       });
 
-      elem.on('drag', function(ev) {
+      elem.on('drag transform', function(ev) {
         var touches = ev.originalEvent.gesture.touches;
+        // console.log(touches);
         for (var t = 0, len = touches.length; t < len; t++) {
           var target = $(touches[t].target);
 
@@ -58,8 +79,11 @@ block content
         }
       });
 
+      // elem.on('release transformend', function(ev) {
       elem.on('release', function(ev) {
+        // console.log('end ' + ev.originalEvent.type);
         var touches = ev.originalEvent.gesture.touches;
+        // console.log(touches);
         for (var t = 0, len = touches.length; t < len; t++) {
           var target = $(touches[t].target);
           if (target.hasClass('drag')) {
