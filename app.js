@@ -1,5 +1,3 @@
-/* vim: set fdm=marker: */
-
 /**
  * Module dependencies.
  */
@@ -23,7 +21,6 @@ iface.forEach(function(connection) {
       IP = connection.address;
    }
 });
-console.log(IP);
 
 // all environments
 app.set('ip', IP);
@@ -49,7 +46,7 @@ app.get('/users', user.list);
 // app.get('newview', )
 
 server.listen(app.get('port'), function(){
-   console.log('Express server listening on port ' + app.get('port'));
+   console.log('Express server listening on ' + app.get('ip') + ":" + app.get('port'));
 });
 
 var sampleNames = [
@@ -63,15 +60,12 @@ var sampleNames = [
 ].sort();
 
 var rndColor = function() {
-//{{{ function that returns random color
    var bg_colour = Math.floor(Math.random() * 16777215).toString(16);
    bg_colour = "#"+("000000" + bg_colour).slice(-6);
    return bg_colour;
-//}}}
-}
+};
 
 var rndName = function() {
-//{{{ function that returns random name from list of names
    var rnd = Math.floor(Math.random() * sampleNames.length);
    var name = sampleNames[rnd];
    for (var i = rnd, len = sampleNames.length; i < len - 1; i++) {
@@ -79,8 +73,7 @@ var rndName = function() {
    }
    sampleNames = sampleNames.splice(0, sampleNames.length - 1);
    return name;
-//}}}
-}
+};
 
 io.sockets.on('connection', function(socket) {
    socket.on('connected', function(data) {
@@ -95,7 +88,6 @@ io.sockets.on('connection', function(socket) {
 });
 
 var shareModeUsers = {
-//{{{ Declaration for users object
    length: 0,
    push: function(user) {
       this[this.length] = user;
@@ -138,11 +130,9 @@ var shareModeUsers = {
 
       return list;
    }
-//}}}
 };
 
 function shareMode(socket) {
-//{{{ manage devices for share mode of application
    var newColor = rndColor();
    var newName = rndName();
 
@@ -172,7 +162,7 @@ function shareMode(socket) {
       sampleNames.push(deleted.name);
 
       socket.broadcast.to('/').emit('del_user', {
-         user: socket.id,
+         user: socket.id
       });
    });
 
@@ -187,58 +177,9 @@ function shareMode(socket) {
          innerHTML: data.innerHTML
       });
    });
-//}}}
-}
-
-var mirrorModeUsers = {
-//{{{ Declaration for users object
-   length: 0,
-   push: function(user) {
-      this[this.length] = user;
-      this.length++;
-   },
-   pop: function(user) {
-      var deleted = {};
-      if (this.length > 0) {
-         var toDelete = -1;
-         for (var i = 0, len = this.length; i < len && toDelete === -1; i++) {
-            if (this[i].user === user.user) {
-               toDelete = i;
-            }
-         }
-         if (toDelete > -1) {
-            deleted = this[toDelete];
-            for (var i = toDelete, len = this.length; i < len - 1; i++) {
-               this[i] = this[i+1];
-            }
-            delete this[i];
-            this.length--;
-         }
-      }
-      return deleted;
-   },
-   except: function(user) {
-      var list = {
-         length: 0,
-         push : function (user) {
-            this[this.length] = user;
-            this.length++;
-         }
-      };
-
-      for (var i = 0; i < this.length; i++) {
-         if (this[i].user !== user.user) {
-            list.push(this[i]);
-         }
-      }
-
-      return list;
-   }
-//}}}
-}
+};
 
 function mirrorMode(socket) {
-//{{{ manage devices for mirror mode of application
    var newColor = rndColor();
    var newName = rndName();
 
@@ -246,8 +187,7 @@ function mirrorMode(socket) {
       msg: 'MCP is welcoming you, user. EOL',
       user: socket.id,
       name: newName,
-      color: newColor,
-      users: shareModeUsers.except({ user: socket.id })
+      color: newColor
    });
 
    socket.on('move_element', function(data) {
@@ -258,5 +198,4 @@ function mirrorMode(socket) {
          y: data.y
       });
    });
-//}}}
-}
+};
