@@ -1,17 +1,20 @@
 {
-  "name": "application name",
-  "version": "0.0.1",
-  "private": true,
-  "scripts": {
-    "start": "node app.js"
-  },
-  "dependencies": {
-    "express": "3.4.7",
-    "jade": "*"
-  },
-  "devDependencies": {
-    "grunt": "~0.4.2",
-    "grunt-bg-shell": "~2.3.1",
-    "grunt-contrib-watch": "~0.5.3"
-  }
+   "name": "distributed-sufaces",
+   "version": "0.0.1",
+   "private": true,
+   "scripts": {
+      "start": "node app.js"
+   },
+   "dependencies": {
+      "express": "3.4.8",
+      "jade": "*",
+      "socket.io": "*",
+      "hammerjs": "*",
+      "zmq": "*"
+   },
+   "devDependencies": {
+      "grunt": "~0.4.2",
+      "grunt-bg-shell": "~2.3.1",
+      "grunt-contrib-watch": "~0.5.3"
+   }
 }
