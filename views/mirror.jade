@@ -16,8 +16,5 @@ block content
   .drag#ball4
     p.id 4
 
-  - var host = 'http://' + settings.ip + ':' + settings.port;
-  script(type='text/javascript', src='http://code.jquery.com/jquery-1.10.2.min.js')
-  script(type='text/javascript', src=host + '/javascripts/hammer.js')
-  script(type='text/javascript', src=host + '/socket.io/socket.io.js')
-  script(type='text/javascript', src=host + '/javascripts/mirrorMode.js')
+  script(type='text/javascript') var host = 'http://#{settings.ip}:#{settings.port}/'
+  script(data-main='/javascripts/mirrorMode.js', src='/javascripts/require.js')

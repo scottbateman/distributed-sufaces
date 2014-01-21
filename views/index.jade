@@ -17,10 +17,5 @@ block content
     p.id 4
   #drop-area
 
-  - var host = 'http://' + settings.ip + ':' + settings.port;
-  script(type='text/javascript', src='http://code.jquery.com/jquery-1.9.0.min.js')
-  script(type='text/javascript', src=host + '/javascripts/hammer.js')
-  script(type='text/javascript', src=host + '/javascripts/hammer.fakemultitouch.js')
-  script(type='text/javascript', src=host + '/javascripts/hammer.showtouches.js')
-  script(type='text/javascript', src=host + '/socket.io/socket.io.js')
-  script(type='text/javascript', src=host + '/javascripts/shareMode.js')
+  script(type='text/javascript') var host = 'http://#{settings.ip}:#{settings.port}/'
+  script(data-main='/javascripts/shareMode.js', src='/javascripts/require.js')

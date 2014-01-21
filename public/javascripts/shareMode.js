@@ -1,6 +1,12 @@
-// Hammer.plugins.showTouches();
-// Hammer.plugins.fakeMultitouch();
+require.config({
+   baseUrl: 'javascripts/lib',
+   paths: {
+      "socket.io": "/socket.io/socket.io",
+      "jquery": "jquery-1.10.2"
+   }
+});
 
+require(['jquery', 'hammer', 'socket.io'], function($, Hammer, io) {
 var socket = io.connect('#{host}');
 socket.emit('connected', { path: window.location.pathname });
 startHammer($('.drag'));
@@ -152,3 +158,4 @@ function sendElement(element, where, position) {
       innerHTML: element[0].innerHTML
    });
 }
+});
