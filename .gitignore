@@ -2,6 +2,9 @@
 *~
 *.swp
 
+# ignore css files because they are generated
+*.css
+
 # ignore node modules
 node_modules/
 

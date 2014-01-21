@@ -15,10 +15,13 @@ module.exports = function(grunt) {
         },
         watch: {
             files: [
-                //add here static file which need to be livereloaded
-                'public/**/*',
-                'public/*',
-                'views/*.jade'
+               //add here static file which need to be livereloaded
+               'public/**/*'
+               , 'public/*'
+               , '!public/**/*.css'
+
+               , 'views/*.jade'
+               , 'views/**/*.styl'
             ],
             options: {
                 livereload: true
