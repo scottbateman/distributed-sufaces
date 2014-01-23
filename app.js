@@ -52,7 +52,8 @@ if ('development' == app.get('env')) {
 
 app.get('/', routes.index);
 app.get('/mirror', routes.mirror);
-app.get('/users', user.list);
+app.get('/share', routes.share);
+//app.get('/users', user.list);
 // app.get('newview', )
 
 server.listen(app.get('port'), function(){

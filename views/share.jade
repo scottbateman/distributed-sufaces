@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  h1 Drag balls and drop them to other devices
+  h2 User tag:
+    span#userID
+
+  a(href='/') Root
+  a(href='/mirror') Mirror mode
+
+  - for (var i = 1; i <= 4; i++)
+    div(class='drag', class='ball' + i)
+      p.id #{i}
+
+  #drop-area
+
+  script(data-main='/js/shareMode.js', src='/js/require.js')

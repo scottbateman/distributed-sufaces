@@ -1,21 +1,6 @@
 extends layout
-
 block content
-  h1 Drag balls and drop them to other devices
-  h2 User tag: 
-    span#userID
-
+  h1= title
+  h2 Welcome to #{title}
+  a(href='/share') Share mode
   a(href='/mirror') Mirror mode
-
-  .drag.ball1
-    p.id 1
-  .drag.ball2
-    p.id 2
-  .drag.ball3
-    p.id 3
-  .drag.ball4
-    p.id 4
-  #drop-area
-
-  script(type='text/javascript') var host = 'http://#{settings.ip}:#{settings.port}/'
-  script(data-main='/javascripts/shareMode.js', src='/javascripts/require.js')
