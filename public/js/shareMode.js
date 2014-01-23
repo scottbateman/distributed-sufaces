@@ -1,5 +1,5 @@
 require.config({
-   baseUrl: 'javascripts/lib',
+   baseUrl: 'js/lib',
    paths: {
       "socket.io": "/socket.io/socket.io",
       "jquery": "jquery-1.10.2"
@@ -7,7 +7,7 @@ require.config({
 });
 
 require(['jquery', 'hammer', 'socket.io'], function($, Hammer, io) {
-var socket = io.connect('#{host}');
+var socket = io.connect();
 socket.emit('connected', { path: window.location.pathname });
 startHammer($('.drag'));
 

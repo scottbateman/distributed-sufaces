@@ -1,5 +1,5 @@
 require.config({
-   baseUrl: 'javascripts/lib',
+   baseUrl: 'js/lib',
    paths: {
       "socket.io": "/socket.io/socket.io",
       "jquery": "jquery-1.10.2"
@@ -7,7 +7,7 @@ require.config({
 });
 
 require(['jquery', 'hammer', 'socket.io'], function($, Hammer, io) {
-   var socket = io.connect(host);
+   var socket = io.connect();
    socket.emit('connected', { path: window.location.pathname });
    startHammer($('.drag'));
 
@@ -54,7 +54,7 @@ require(['jquery', 'hammer', 'socket.io'], function($, Hammer, io) {
    });
 
    socket.on('move', function(data) {
-      var element = $('#' + data.id);
+      var element = $('#' + data.targetId);
       element.css({
          left: data.x - element.width() / 2,
          top: data.y - element.height() / 2
@@ -63,7 +63,7 @@ require(['jquery', 'hammer', 'socket.io'], function($, Hammer, io) {
 
    var sendElement = function(target, x, y) {
       socket.emit('move_element', {
-         id: target[0].id,
+         targetId: target[0].id,
          x: x,
          y: y
       });
