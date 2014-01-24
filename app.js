@@ -69,13 +69,11 @@ var sampleNames = [
    'Don', 'Arianne', 'Esther', 'Leonia', 'Karma', 'Rosemarie', 'Carolyn',
    'Miriam', 'Chastity', 'Vesta', 'Christian', 'Lashaun'
 ].sort();
-
 var rndColor = function() {
    var bg_colour = Math.floor(Math.random() * 16777215).toString(16);
    bg_colour = "#"+("000000" + bg_colour).slice(-6);
    return bg_colour;
 };
-
 var rndName = function() {
    var rnd = Math.floor(Math.random() * sampleNames.length);
    var name = sampleNames[rnd];
@@ -143,7 +141,7 @@ var shareModeUsers = {
    }
 };
 
-function shareMode(socket) {
+var shareMode = function(socket) {
    var newColor = rndColor();
    var newName = rndName();
 
@@ -190,7 +188,7 @@ function shareMode(socket) {
    });
 };
 
-function mirrorMode(socket) {
+var mirrorMode = function(socket) {
    var newColor = rndColor();
    var newName = rndName();
 
