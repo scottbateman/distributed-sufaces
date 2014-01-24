@@ -4,7 +4,7 @@
  */
 
 exports.index = function(req, res) {
-  res.render('index', { title: 'Sharing mode' });
+  res.render('index', { title: 'Distributed surfaces' });
 };
 
 exports.share = function(req, res) {
