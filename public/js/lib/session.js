@@ -9,13 +9,7 @@
    Session.DOCUMENT = window.document;
 
    Session.init = function(host) {
-      if (typeof host !== "string" && typeof host !== "undefined") {
-         throw new Error("Host is not a string");
-      }
-      host = host || window.location.host;
-      this.host = host;
       this.socket = Session.modules.io.connect(host);
-
 
       Session.READY = true;
       return this;
