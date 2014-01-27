@@ -53,6 +53,7 @@ if ('development' == app.get('env')) {
 app.get('/', routes.index);
 app.get('/mirror', routes.mirror);
 app.get('/share', routes.share);
+app.get('/share2', routes.share2);
 //app.get('/users', user.list);
 // app.get('newview', )
 
