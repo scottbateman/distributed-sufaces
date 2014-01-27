@@ -89,7 +89,7 @@ io.sockets.on('connection', function(socket) {
    socket.on('connected', function(data) {
       var path = data.path;
       socket.join(path);
-      if (path === '/')  {
+      if (path === '/share' || path === '/share2')  {
          shareMode(socket);
       } else if (path === '/mirror') {
          mirrorMode(socket);
