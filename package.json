@@ -10,8 +10,7 @@
       "jade": "*",
       "stylus": "*",
       "socket.io": "*",
-      "hammerjs": "*",
-      "zmq": "*"
+      "hammerjs": "*"
    },
    "devDependencies": {
       "grunt": "~0.4.2",
