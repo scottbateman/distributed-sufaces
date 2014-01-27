@@ -17,10 +17,8 @@ module.exports = function(grunt) {
             files: [
                //add here static file which need to be livereloaded
                'public/**/*'
-               , 'public/*'
                , '!public/**/*.css'
-
-               , 'views/*.jade'
+               , 'views/**/*.jade'
                , 'views/**/*.styl'
             ],
             options: {
