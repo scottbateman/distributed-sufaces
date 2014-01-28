@@ -3,7 +3,7 @@ requirejs.config({
    paths: {
       //paths are relative to baseUrl
       "jquery": [
-         "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js",
+         "//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min",
          //If CDN fails, load from local file
          "jquery-1.10.2"
       ],
@@ -13,7 +13,13 @@ requirejs.config({
 });
 
 requirejs(['jquery', 'session'], function($, Session) {
-   var sess = new Session();
+   var rndColor = function() {
+      var bg_colour = Math.floor(Math.random() * 16777215).toString(16);
+      bg_colour = "#"+("000000" + bg_colour).slice(-6);
+      return bg_colour;
+   };
+
+   var sess = new Session({color: rndColor()});
    sess.emit('connected', { path: window.location.pathname });
    sess.on('hello', function(data) {
       console.log(data.msg);
@@ -42,6 +48,42 @@ requirejs(['jquery', 'session'], function($, Session) {
          }
       });
    });
+
+//   sess.addMT(".drag");
+   sess.addMT($('.drag'));
+//   sess.addMT(document.getElementsByClassName("drag"));
+
+   sess.on('touch', function (ev) {
+      console.log('start ' + ev.originalEvent.type);
+      var touches = ev.originalEvent.gesture.touches;
+      // console.log(touches);
+      for (var t = 0, len = touches.length; t < len; t++) {
+         var target = $(touches[t].target);
+         $('.drag').css({ zIndex: 5 });
+         target.css({ zIndex: 10 });
+      }
+   });
+   sess.on('drag', function (ev) {
+      var touches = ev.originalEvent.gesture.touches;
+//      console.log(touches);
+      for (var t = 0, len = touches.length; t < len; t++) {
+         var target = $(touches[t].target);
+
+         // $('.drag').css({ zIndex: 0 });
+
+         if (target.hasClass('drag')) {
+            target.css({
+               // zIndex: 10,
+               left: touches[t].pageX - target.width() / 2,
+               top: touches[t].pageY - target.height() / 2
+            });
+         }
+      }
+   });
+
+   window.sess = sess;
+   window.Session = Session;
+
 
 //   console.log(Session);
 //   console.log(Session.READY);

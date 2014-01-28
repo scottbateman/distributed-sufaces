@@ -85,7 +85,24 @@ var rndName = function() {
    return name;
 };
 
+var share2Users = new (function() {
+   this.length = 0;
+   this.push = function(user) {
+      this[this.length] = user;
+      this.length++;
+   };
+})();
+
 io.sockets.on('connection', function(socket) {
+   socket.on('connectionReq', function(data) {
+      share2Users.push({
+         uuid: data.uuid,
+         description: data.description
+      });
+      socket.emit('connectionRes', {
+
+      });
+   });
    socket.on('connected', function(data) {
       var path = data.path;
       socket.join(path);
