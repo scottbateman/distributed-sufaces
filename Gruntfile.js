@@ -7,7 +7,7 @@ module.exports = function(grunt) {
     grunt.initConfig({
         bgShell: {
             supervisor: {
-                cmd: 'supervisor app.js',
+                cmd: 'supervisor -i ./public app.js',
                 stdout: true,
                 stderr: true,
                 bg: true
