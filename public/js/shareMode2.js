@@ -84,6 +84,52 @@ requirejs(['jquery', 'session'], function($, Session) {
    window.sess = sess;
    window.Session = Session;
 
+   //FIXME check error with drag when element jumps to new location
+   sess.on('pinchout', function(ev) {
+      var target = $(ev.target);
+
+//      console.log(ev);
+//      console.log(ev.originalEvent.gesture.scale);
+//      console.log(target);
+//      console.log(target.css('width').split('').slice(0,-2).join(''));
+
+      var centerX = +target.css('width').split('').slice(0,-2).join('') / 2 + +target.offset().left;
+      var centerY = +target.css('height').split('').slice(0,-2).join('') / 2+ +target.offset().top;
+      var scale = ev.originalEvent.gesture.scale;
+      var newWidth = +target.css('width').split('').slice(0,-2).join('') * (1 + scale / 50);
+      var newHeight = +target.css('height').split('').slice(0,-2).join('') * (1 + scale / 50);
+      var newPosX = centerX - newWidth / 2;
+      var newPosY = centerY - newHeight / 2;
+      var newBorderRadius = newWidth / 2;
+
+      target.css({
+         left: newPosX + 'px',
+         top: newPosY + 'px',
+         width: newWidth + 'px',
+         height: newHeight + 'px',
+         borderRadius: newBorderRadius + 'px'
+      });
+   });
+   sess.on('pinchin', function(ev) {
+      var target = $(ev.target);
+
+      var centerX = +target.css('width').split('').slice(0,-2).join('') / 2 + +target.offset().left;
+      var centerY = +target.css('height').split('').slice(0,-2).join('') / 2+ +target.offset().top;
+      var scale = ev.originalEvent.gesture.scale;
+      var newWidth = +target.css('width').split('').slice(0,-2).join('') * (1 - scale / 20);
+      var newHeight = +target.css('height').split('').slice(0,-2).join('') * (1 - scale / 20);
+      var newPosX = centerX - newWidth / 2;
+      var newPosY = centerY - newHeight / 2;
+      var newBorderRadius = newWidth/2;
+
+      target.css({
+         left: newPosX + 'px',
+         top: newPosY + 'px',
+         width: newWidth + 'px',
+         height: newHeight + 'px',
+         borderRadius: newBorderRadius + 'px'
+      });
+   });
 
 //   console.log(Session);
 //   console.log(Session.READY);
