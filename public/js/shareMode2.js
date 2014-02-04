@@ -18,43 +18,58 @@ requirejs(['jquery', 'session'], function($, Session) {
       bg_colour = "#"+("000000" + bg_colour).slice(-6);
       return bg_colour;
    };
+   var sampleNames = [
+      'Fe', 'Thomas', 'Kirstie', 'Wynell', 'Mario', 'Aretha', 'Cherryl', 'Ta',
+      'Lindy', 'Karina', 'Sacha', 'Latesha', 'Miki', 'Janel', 'Leola', 'Romeo',
+      'Roderick', 'Felica', 'Ilona', 'Nila', 'Patrina', 'Wes', 'Henry', 'Elvera',
+      'Karrie', 'Jacklyn', 'Alethea', 'Emogene', 'Alphonso', 'Chandra', 'Beryl',
+      'Lilly', 'Georgetta', 'Darrin', 'Deane', 'Rocio', 'Charissa', 'Simona',
+      'Don', 'Arianne', 'Esther', 'Leonia', 'Karma', 'Rosemarie', 'Carolyn',
+      'Miriam', 'Chastity', 'Vesta', 'Christian', 'Lashaun'
+   ].sort();
+   var name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
 
-   var sess = new Session({color: rndColor()});
-   sess.emit('connected', { path: window.location.pathname });
-   sess.on('hello', function(data) {
-      console.log(data.msg);
-
-      $(document).ready(function() {
-         var userID = $('#userID');
-         userID.text(data.name);
-         userID.css({ background: data.color });
-
-         $('.id').text(data.name);
-
-         $('#drop-area div').remove();
-         for (var i = 0, len = data.users.length; i < len; i++) {
-            var newUserDropArea = $(document.createElement('div'));
-            newUserDropArea.addClass('drop');
-            newUserDropArea.attr('data-target-id', data.users[i].user);
-            newUserDropArea.css({ background: data.users[i].color });
-
-            var newUserText = $(document.createElement('p'));
-            newUserText.text(data.users[i].name);
-            newUserDropArea.append(newUserText);
-
-            $('#drop-area').append(newUserDropArea);
-            var useHeight = (100 / data.users.length) + '%';
-            $('#drop-area div').css({ height: useHeight });
-         }
-      });
+   var sess = new Session({
+      color: rndColor(),
+      name: name,
+      path: window.location.pathname
    });
+
+//   sess.emit('connected', { path: window.location.pathname });
+//   sess.on('hello', function(data) {
+//      console.log(data.msg);
+//
+//      $(document).ready(function() {
+//         var userID = $('#userID');
+//         userID.text(data.name);
+//         userID.css({ background: data.color });
+//
+//         $('.id').text(data.name);
+//
+//         $('#drop-area div').remove();
+//         for (var i = 0, len = data.users.length; i < len; i++) {
+//            var newUserDropArea = $(document.createElement('div'));
+//            newUserDropArea.addClass('drop');
+//            newUserDropArea.attr('data-target-id', data.users[i].user);
+//            newUserDropArea.css({ background: data.users[i].color });
+//
+//            var newUserText = $(document.createElement('p'));
+//            newUserText.text(data.users[i].name);
+//            newUserDropArea.append(newUserText);
+//
+//            $('#drop-area').append(newUserDropArea);
+//            var useHeight = (100 / data.users.length) + '%';
+//            $('#drop-area div').css({ height: useHeight });
+//         }
+//      });
+//   });
 
 //   sess.addMT(".drag");
    sess.addMT($('.drag'));
 //   sess.addMT(document.getElementsByClassName("drag"));
 
    sess.on('touch', function (ev) {
-      console.log('start ' + ev.originalEvent.type);
+//      console.log('start ' + ev.originalEvent.type);
       var touches = ev.originalEvent.gesture.touches;
       // console.log(touches);
       for (var t = 0, len = touches.length; t < len; t++) {
@@ -67,8 +82,8 @@ requirejs(['jquery', 'session'], function($, Session) {
       var touches = ev.originalEvent.gesture.touches;
 //      console.log(touches);
       for (var t = 0, len = touches.length; t < len; t++) {
-         var target = $(touches[t].target);
-
+//         var target = $(touches[t].target);
+         var target = $(ev.target);
          // $('.drag').css({ zIndex: 0 });
 
          if (target.hasClass('drag')) {
@@ -79,6 +94,9 @@ requirejs(['jquery', 'session'], function($, Session) {
             });
          }
       }
+   });
+   sess.onRemote('drag', function(data) {
+      console.log(data);
    });
 
    window.sess = sess;
