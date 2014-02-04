@@ -136,7 +136,7 @@
                self.MTObjects.forEach(function (MTObj) { // to all mt objects we attach listener
                   MTObj.on(type, function (ev) { //listener callback
                      var touches = ev.originalEvent.gesture.touches;
-                     var data2 = {
+                     var data = {
                         sourceUUID: self.uuid,
                         event: {
                            type: type,
@@ -145,7 +145,7 @@
                      };
                      for (var i = 0; i < touches.length; i++) {
                         var touch = touches[i];
-                        data2.event.element.push({
+                        data.event.element.push({
                            tag: touch.target.tagName,
                            id: touch.target.id,
                            className: touch.target.className,
