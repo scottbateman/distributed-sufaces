@@ -1,11 +1,19 @@
-(function() {
+all();
+function all() {
+   /**
+    * Function is alias to {@link Session.init}
+    * @param {string} [host] Host socket.io is connecting to
+    * @param {object} clientDescription User specified description of client
+    * @returns {Session.init} Instance of session
+    *
+    * @alias Session
+    * @constructor
+    */
+   var Session = function(host, clientDescription) {
+      return new Session.init(host, clientDescription);
+   };
 
-   /** Session */
-   var //start Session
-      Session = function(host, clientDescription) {
-         return new Session.init(host, clientDescription);
-      }
-//      , //Returns true if object is a DOM node
+//   var //Returns true if object is a DOM node
 //      isNode = function(o) {
 //         return (typeof Node === "object" ? o instanceof Node :
 //            o && typeof o === "object" && typeof o.nodeType === "number"
@@ -33,15 +41,31 @@
 //      defaultDragCallback = function(ev) {
 //         var $ = Session.modules.$;
 //
-//      }
-      ;
+//      };
 
+   /**
+    * Is true when {@link Session.init#socket socket} is connected and
+    * {@link Session.init#MTObjects MT objects} initialized
+    * @type {boolean}
+    */
    Session.READY = false;
 
-   // list of all event to/from server
+   /**
+    * List of all events that (sent to/received from) server
+    * @type {string[]}
+    */
    var serviceCalls = ["CONN", "CONN_OK", "CONN_USER", "DEL_USER",
       "MT_EVENT_SUBSCRIBE"];
+   //   Session.events = new Session.modules.ev();
 
+   /**
+    * Function initializes new session instance
+    * @param {string} [host] Host socket.io is connecting to
+    * @param {object} clientDescription User specified description of client
+    * @returns {Session.init} Instance of session
+    *
+    * @constructor
+    */
    Session.init = function(host, clientDescription) {
       if (typeof host !== "string") {
          clientDescription = host;
@@ -49,6 +73,10 @@
       }
       var self = this;
 
+      /**
+       * Socket to the host for the current session
+       * @type {*|io.Socket}
+       */
       this.socket = Session.modules.io.connect(host);
       this.socket.emit('CONN', {
          description: clientDescription
@@ -78,7 +106,15 @@
          }
       });
 
+      /**
+       * Description of client for current session
+       * @type {Object}
+       */
       this.description = clientDescription;
+      /**
+       * Objects that has multi-touch properties
+       * @type {Array}
+       */
       this.MTObjects = [];
       this.MTSelector = "";
 
@@ -89,13 +125,20 @@
 //   Session.init.prototype.foo = function () {return "bar";};
 //   Session.init.prototype.bar = "foo";
    Session.init.prototype = {
-      //All Hammer events
+      /**
+       * All multitouch events from Hammer
+       * @type {string[]}
+       */
       MTEvents: [
          "hold", "tap", "doubletap", "drag", "dragstart", "dragend", "dragup",
          "dragdown", "dragleft", "dragright", "swipe", "swipeup", "swipedown",
          "swipeleft", "swiperight", "transform", "transformstart", "transformend",
          "rotate", "pinch", "pinchin", "pinchout", "touch", "release"
       ],
+      /**
+       * Specify on which element multitouch is started
+       * @param {jQuery} elem Jquery array of elements
+       */
       addMT: function(elem) {
          //TODO make hammer start on body and move items only with certain classes
          //FIXME --bug 1--
@@ -122,6 +165,11 @@
 //         });
 //         this.MTSelector = selector;
 //      },
+      /**
+       * Send data to server through {@link Session.init#socket|socket}
+       * @param {string} type Type of event created on server
+       * @param {string|object} data Object to send
+       */
       emit: function(type, data) {
          var self = this;
          this.socket.emit(type, {
@@ -129,6 +177,11 @@
             msg: data
          });
       },
+      /**
+       * Register callback on specified event
+       * @param {string|string[]} types On which types fire callback
+       * @param {function} callback Function to execute
+       */
       on: function(types, callback) {
          var self = this;
          types.split(' ').forEach(function(type) { // in case types is given as string of few events
@@ -170,6 +223,11 @@
             }
          });
       },
+      /**
+       * Register callback on event type from remote server
+       * @param {string|string[]} types On which types fire callback
+       * @param {function} callback Function to execute
+       */
       onRemote: function(types, callback) {
          var self = this;
          self.socket.emit("MT_EVENT_SUBSCRIBE", {
@@ -210,4 +268,4 @@
       //TODO Work on dependencies when there is no plugins
       window.Session = Session;
    }
-})();
+};
