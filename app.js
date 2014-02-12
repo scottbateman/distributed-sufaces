@@ -34,15 +34,15 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-app.use(stylus.middleware({
-   src: __dirname + '/views',
-   dest: __dirname + '/public',
-   compile: function(str, path) {
-      return stylus(str)
-         .set('filename', path)
-         .set('compress', true);
-   }
-}));
+// app.use(stylus.middleware({
+//    src: __dirname + '/views',
+//    dest: __dirname + '/public',
+//    compile: function(str, path) {
+//       return stylus(str)
+//          .set('filename', path)
+//          .set('compress', true);
+//    }
+// }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
