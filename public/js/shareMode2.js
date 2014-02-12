@@ -29,12 +29,55 @@ requirejs(['jquery', 'session'], function($, Session) {
       'Miriam', 'Chastity', 'Vesta', 'Christian', 'Lashaun'
    ].sort();
    var name = sampleNames[Math.floor(Math.random() * sampleNames.length)];
+   var color = rndColor();
+
+   $(document).ready(function() {
+      var userID = $('#userID');
+      userID.text(name);
+      userID.css({ background: color });
+
+      $('.id').text(name);
+   });
 
    var sess = new Session({
-      color: rndColor(),
+      color: color,
       name: name,
       path: window.location.pathname
    });
+//   setTimeout(function() {
+//      console.log(sess.uuid);
+//   }, 500);
+
+   function updateBar() {
+      var dropArea = $('#drop-area');
+      dropArea.find('div').remove();
+      for (var i = 0, len = sess.otherClients.length; i < len; i++) {
+         var newUserDropArea = $(document.createElement('div'));
+         newUserDropArea.addClass('drop');
+         newUserDropArea.attr('data-target', sess.otherClients[i].uuid);
+         newUserDropArea.css({ background: sess.otherClients[i].description.color });
+
+         var newUserText = $(document.createElement('p'));
+         newUserText.text(sess.otherClients[i].description.name);
+         newUserDropArea.append(newUserText);
+
+         dropArea.append(newUserDropArea);
+         var useHeight = (100 / sess.otherClients.length) + '%';
+         dropArea.find('div').css({ height: useHeight });
+      }
+   }
+   sess.on([Session.when.connection_ok,
+           Session.when.user_connected,
+           Session.when.user_disconnected].join(" "), updateBar);
+
+   setTimeout(function() {
+//      sess.sendMSG([sess.otherClients[0].uuid], {msg: "hello", metadata: true});
+//      sess.broadcastMSG({msg: "hello", metadata: true});
+   }, 1000);
+   sess.on(Session.when.broadcast_received, function(data) {
+      console.log(data);
+   });
+
 
 //   sess.emit('connected', { path: window.location.pathname });
 //   sess.on('hello', function(data) {
@@ -65,14 +108,17 @@ requirejs(['jquery', 'session'], function($, Session) {
 //      });
 //   });
 
+//   sess.on("NEW_CONN_OK", function(ev) {
+//      console.log('my custom event');
+//      console.log(ev);
+//   });
+
 //   sess.addMT(".drag");
    sess.addMT($('.drag'));
 //   sess.addMT(document.getElementsByClassName("drag"));
 
    sess.on('touch', function (ev) {
-//      console.log('start ' + ev.originalEvent.type);
       var touches = ev.originalEvent.gesture.touches;
-      // console.log(touches);
       for (var t = 0, len = touches.length; t < len; t++) {
          var target = $(touches[t].target);
          $('.drag').css({ zIndex: 5 });
@@ -81,28 +127,95 @@ requirejs(['jquery', 'session'], function($, Session) {
    });
    sess.on('drag', function (ev) {
       var touches = ev.originalEvent.gesture.touches;
-//      console.log(touches);
       for (var t = 0, len = touches.length; t < len; t++) {
 //         var target = $(touches[t].target);
          var target = $(ev.target);
-         // $('.drag').css({ zIndex: 0 });
 
          if (target.hasClass('drag')) {
             target.css({
-               // zIndex: 10,
                left: touches[t].pageX - target.width() / 2,
                top: touches[t].pageY - target.height() / 2
             });
          }
       }
    });
-   sess.onRemote('drag', function(data) {
-      console.log(data);
+   sess.on('release', function(ev) {
+      var touches = ev.originalEvent.gesture.touches;
+//      console.log(touches.length);
+      for (var t = 0; t < touches.length; t++) {
+         var target = $(touches[t].target);
+         if (target.hasClass('drag')) {
+            var targetCenter = {
+               x: target.offset().left + target.width() / 2,
+               y: target.offset().top + target.height() / 2
+            };
+            var where;
+            var dropAreas = $('#drop-area').find('div');
+            for (var i = 0; i < dropAreas.length
+               && typeof where === 'undefined'; i++) {
+               var drop = $(dropAreas[i]);
+               if (drop.offset().left <= targetCenter.x &&
+                  targetCenter.x <= drop.offset().left + drop.width() &&
+                  drop.offset().top <= targetCenter.y &&
+                  targetCenter.y <= drop.offset().top + drop.height()) {
+                  where = drop.attr("data-target");
+               }
+            }
+            if (typeof where === 'string') {
+               sess.sendMSG([where], {
+                  action: 'new_element',
+                  element: {
+                     tag: target[0].tagName,
+                     id: target[0].id,
+                     className: target[0].className,
+                     innerHTML: target[0].innerHTML,
+                     relHeight: ( targetCenter.y / $(window).height() )
+                  }
+               });
+               target.remove();
+            }
+         }
+      }
    });
+   sess.on(Session.when.message_received, function(data) {
+      console.log(data);
+      switch (data.action) {
+         case "new_element":
+            new_element(data.element);
+            break;
+      }
+   });
+
+   function new_element(metadata) {
+      console.log(metadata);
+
+      var newElem = $(document.createElement(metadata.tag));
+      newElem.addClass(metadata.className);
+      newElem.attr('id', metadata.id);
+      newElem.html(metadata.innerHTML);
+
+      $("body").append(newElem);
+      sess.addMT(newElem);
+
+      var fuzziness = 1 + 25;
+      var rndLeft = Math.floor(Math.random() * fuzziness - 5);
+      newElem.css({
+         top: ( metadata.relHeight * $(window).height() - newElem.height() / 2 ),
+         left: ( $(window).width() - $('#drop-area').width() - newElem.width() + rndLeft )
+      });
+   };
+
+//   sess.onRemote('drag', function(data) {
+//      console.log(data);
+//   });
+//   sess.on("shake", function(data) {
+//      console.log('Undo?');
+//   });
 
    window.sess = sess;
    window.Session = Session;
 
+   /*
    //FIXME check error with drag when element jumps to new location
    sess.on('pinchout', function(ev) {
       var target = $(ev.target);
@@ -149,6 +262,7 @@ requirejs(['jquery', 'session'], function($, Session) {
          borderRadius: newBorderRadius + 'px'
       });
    });
+   */
 
 //   console.log(Session);
 //   console.log(Session.READY);
