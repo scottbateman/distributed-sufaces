@@ -1,1 +1,1 @@
-../../../../wams.js-client/src/session.js
+../../../../wams.js-client/src/wams.js
