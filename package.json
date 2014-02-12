@@ -11,9 +11,6 @@
       "hammerjs": "*"
    },
    "devDependencies": {
-      "grunt": "~0.4.2",
-      "grunt-bg-shell": "~2.3.1",
-      "grunt-contrib-watch": "~0.5.3",
       "gulp": "~3.5.1",
       "gulp-util": "~2.2.14",
       "gulp-livereload": "~0.3.2",
