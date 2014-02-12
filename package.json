@@ -6,16 +6,16 @@
       "start": "node app.js"
    },
    "dependencies": {
-      "express": "3.4.8",
+      "express": "*",
       "jade": "*",
       "hammerjs": "*"
    },
    "devDependencies": {
-      "gulp": "~3.5.1",
-      "gulp-util": "~2.2.14",
-      "gulp-livereload": "~0.3.2",
-      "gulp-notify": "~0.4.0",
-      "gulp-clean": "~0.2.4",
-      "gulp-stylus": "0.0.11"
+      "gulp": "*",
+      "gulp-util": "*",
+      "gulp-livereload": "*",
+      "gulp-notify": "*",
+      "gulp-clean": "*",
+      "gulp-stylus": "*"
    }
 }
