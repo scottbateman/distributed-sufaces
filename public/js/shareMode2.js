@@ -9,6 +9,7 @@ requirejs.config({
       ],
       "hammer": "hammer",
       "socket.io": "/socket.io/socket.io"
+      , "shake": "shake"
    }
 });
 
