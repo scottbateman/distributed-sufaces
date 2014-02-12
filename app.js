@@ -3,8 +3,6 @@
  */
 
 var express = require('express');
-var socket_io = require('socket.io');
-var stylus = require('stylus');
 var http = require('http');
 var path = require('path');
 var os = require('os');
@@ -34,15 +32,6 @@ app.use(express.json());
 app.use(express.urlencoded());
 app.use(express.methodOverride());
 app.use(app.router);
-// app.use(stylus.middleware({
-//    src: __dirname + '/views',
-//    dest: __dirname + '/public',
-//    compile: function(str, path) {
-//       return stylus(str)
-//          .set('filename', path)
-//          .set('compress', true);
-//    }
-// }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // development only
