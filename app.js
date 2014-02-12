@@ -51,3 +51,18 @@ server.listen(app.get('port'), function(){
 });
 
 wams.listen(server);
+
+/*
+ //Shared dic
+ var dic = {};
+ io.sockets.on('connection', function(socket) {
+ console.log(dic);
+ socket.emit("DIC_SNAPSHOT", dic);
+ socket.on("PUSH_TO_DIC", function(data) {
+ dic[data.attr] = data.value;
+ console.log(dic);
+ socket.broadcast.emit("DIC_UPDATE", data);
+ });
+ });
+ //Shared dic end
+ */
